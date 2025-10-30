@@ -23,4 +23,4 @@ class AporteService {
 
 }
 
-exporte const aporteService = new AporteService();
+export const aporteService = new AporteService();
