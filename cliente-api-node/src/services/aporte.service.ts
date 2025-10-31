@@ -10,7 +10,7 @@ class AporteService {
     // registrar aporte (atomicidade/lock simples)
     async registrarAporte(colaboradorId: number, valor: number, data: string, fundoId?: string) {
         // validações básicas
-        if (valor <= 0) throw new Error("Valor deve ser > 0");
+        if (valor < 10) throw new Error("Aporte minimo: R$10");
         // lock simples
         while (this.locks.has(colaboradorId)) await new Promise(r => setTimeout(r, 10));
         this.locks.add(colaboradorId);

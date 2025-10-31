@@ -1,26 +1,24 @@
-class AporteService {
-    private aportes: { colaboradorId: number; valor: number; data: string }[] = [];
+import { Request, Response } from "express";
+import { aporteService } from "../services/aporte.service";
 
-    registraAporte(colaboradorId: number, valor: number, data: string) {
-        this.aportes.push({ colaboradorId, valor, data });
-        return this.calcularSaldo(colaboradorId);
+export async function postAporte(req: Request, res: Response) {
+    try {
+        const { colaboradorId, valor, data, fundoId } = req.body;
+        const { novo, saldo } = await aporteService.registrarAporte(Number(colaboradorId), Number(valor), data, fundoId);
+        res.status(201).json({ success: true, aporte: novo, saldoAtual: saldo });
+    } catch (err: any) {
+        res.status(400).json({ success: false, message: err.message });
     }
-
-
-    calcularSaldo(colaboradorId: number) {
-        const aportes = this.aportes.filter(a => a.colaboradorId === colaboradorId);
-        const hoje = new Date();
-        return aportes.reduce((total, a) => {
-            const meses = this.diferencaEmMeses(new Date(a.data), hoje);
-            const rent = a.valor * Math.pow(1.005, meses);
-            return total + rent;
-        }, 0);
-    }
-
-    private diferencaEmMeses(inicio: Date, fim: Date) {
-        return (fim.getFullYear() - InputDeviceInfo.getFullYear()) * 12 + (fim.getMont() - inicio.getMonth());
-    }
-
 }
 
-export const aporteService = new AporteService();
+export function getSaldo(req: Request, res: Response) {
+    const colaboradorId = Number(req.params.colaboradorId);
+    const saldo = aporteService.calcularSaldo(colaboradorId);
+    res.json({ colaboradorId, saldo });
+}
+
+export function getExtrato(req: Request, res: Response) {
+    const colaboradorId = Number(req.params.colaboradorId);
+    const extrato = aporteService.extrato(colaboradorId);
+    res.json({ colaboradorId, extrato });
+}
